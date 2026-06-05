@@ -1,51 +1,76 @@
 {% extends 'store/base.html' %}
 
+{% block title %}Privacy Policy | SLICKBACK{% endblock %}
+
 {% block extra_css %}
 <style>
   .page-title {
     text-align: center;
     font-family: 'Courier New', monospace;
-    font-size: 36px;
+    font-size: 42px;
     margin: 30px 0 60px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    line-height: 1.2;
+    letter-spacing: 4px;
   }
 
-  .container {
+  .policy-container {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0 auto 80px;
     padding: 0 40px;
   }
 
-  .container p {
+  .policy-container h2 {
     font-family: 'Courier New', monospace;
-    font-size: 20px;
-    line-height: 1.8;
+    font-size: 22px;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+
+  .policy-container p,
+  .policy-container li {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    line-height: 1.9;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  .container a {
+  .policy-container ul {
+    padding-left: 25px;
+    margin-bottom: 20px;
+  }
+
+  .policy-container a {
     color: black;
     text-decoration: underline;
-    word-break: break-word;
+  }
+
+  .last-updated {
+    text-align: center;
+    margin-bottom: 50px;
+    opacity: 0.7;
   }
 
   @media (max-width: 768px) {
     .page-title {
-      font-size: 24px;
+      font-size: 28px;
       margin: 20px 0 40px;
-      letter-spacing: 1px;
-      padding: 0 16px;
+      letter-spacing: 2px;
+      padding: 0 20px;
     }
 
-    .container {
+    .policy-container {
       padding: 0 24px;
     }
 
-    .container p {
-      font-size: 16px;
+    .policy-container h2 {
+      font-size: 18px;
+    }
+
+    .policy-container p,
+    .policy-container li {
+      font-size: 15px;
       line-height: 1.8;
     }
   }
@@ -56,15 +81,140 @@
 
 <h1 class="page-title">Privacy Policy</h1>
 
-<div class="container">
-  <p>
-    IN ADDITION, YOU AGREE TO OUR MESSAGING TERMS
-    (<a href="https://terms.pscr.pt/legal/shop/ab72c2-2/terms_of_service" target="_blank">
-    TERMS OF SERVICE</a>)
-    AND MESSAGING PRIVACY POLICY
-    (<a href="https://terms.pscr.pt/legal/shop/ab72c2-2/privacy_policy" target="_blank">
-    PRIVACY POLICY</a>).
+<div class="policy-container">
+
+  <p class="last-updated">
+    LAST UPDATED: JUNE 2026
   </p>
+
+  <p>
+    SLICKBACK IS COMMITTED TO PROTECTING YOUR PRIVACY. THIS POLICY
+    EXPLAINS HOW WE COLLECT, USE, STORE, AND PROTECT YOUR PERSONAL
+    INFORMATION WHEN YOU VISIT OUR WEBSITE OR PURCHASE PRODUCTS FROM US.
+  </p>
+
+  <h2>1. Information We Collect</h2>
+
+  <p>WE MAY COLLECT:</p>
+
+  <ul>
+    <li>NAME</li>
+    <li>EMAIL ADDRESS</li>
+    <li>PHONE NUMBER</li>
+    <li>BILLING ADDRESS</li>
+    <li>SHIPPING ADDRESS</li>
+    <li>ORDER DETAILS</li>
+    <li>DEVICE AND BROWSER INFORMATION</li>
+    <li>IP ADDRESS</li>
+  </ul>
+
+  <h2>2. How We Use Information</h2>
+
+  <p>
+    WE USE YOUR INFORMATION TO PROCESS ORDERS, ARRANGE DELIVERY,
+    PROVIDE CUSTOMER SUPPORT, PREVENT FRAUD, IMPROVE OUR WEBSITE,
+    AND COMPLY WITH LEGAL REQUIREMENTS.
+  </p>
+
+  <h2>3. Payment Processing</h2>
+
+  <p>
+    PAYMENTS ARE SECURELY PROCESSED THROUGH TRUSTED THIRD-PARTY
+    PAYMENT PROVIDERS INCLUDING STRIPE. WE DO NOT STORE FULL
+    PAYMENT CARD DETAILS ON OUR SERVERS.
+  </p>
+
+  <h2>4. Shipping & Fulfilment</h2>
+
+  <p>
+    TO FULFIL YOUR ORDER WE MAY SHARE NECESSARY INFORMATION WITH
+    SHIPPING CARRIERS, DELIVERY PROVIDERS, AND FULFILMENT PARTNERS.
+  </p>
+
+  <h2>5. Sharing Your Information</h2>
+
+  <p>
+    WE DO NOT SELL OR RENT YOUR PERSONAL INFORMATION.
+  </p>
+
+  <p>
+    INFORMATION MAY BE SHARED ONLY WITH:
+  </p>
+
+  <ul>
+    <li>PAYMENT PROCESSORS</li>
+    <li>DELIVERY AND COURIER COMPANIES</li>
+    <li>WEBSITE SERVICE PROVIDERS</li>
+    <li>LEGAL AUTHORITIES WHEN REQUIRED BY LAW</li>
+  </ul>
+
+  <h2>6. Cookies</h2>
+
+  <p>
+    OUR WEBSITE USES COOKIES TO MAINTAIN SHOPPING CART FUNCTIONALITY,
+    IMPROVE PERFORMANCE, ANALYSE TRAFFIC, AND ENHANCE YOUR BROWSING
+    EXPERIENCE.
+  </p>
+
+  <h2>7. Data Security</h2>
+
+  <p>
+    WE IMPLEMENT APPROPRIATE TECHNICAL AND ORGANISATIONAL MEASURES
+    TO HELP PROTECT YOUR PERSONAL INFORMATION AGAINST UNAUTHORISED
+    ACCESS, LOSS, MISUSE, OR DISCLOSURE.
+  </p>
+
+  <h2>8. Data Retention</h2>
+
+  <p>
+    WE RETAIN PERSONAL INFORMATION ONLY FOR AS LONG AS NECESSARY TO
+    COMPLETE ORDERS, MEET LEGAL OBLIGATIONS, RESOLVE DISPUTES, AND
+    ENFORCE OUR POLICIES.
+  </p>
+
+  <h2>9. Your Rights</h2>
+
+  <p>
+    YOU MAY REQUEST ACCESS TO YOUR PERSONAL INFORMATION, REQUEST
+    CORRECTIONS TO INACCURATE DATA, OR REQUEST DELETION OF YOUR
+    INFORMATION WHERE PERMITTED BY APPLICABLE LAW.
+  </p>
+
+  <h2>10. Third-Party Services</h2>
+
+  <p>
+    OUR WEBSITE MAY CONTAIN LINKS TO THIRD-PARTY WEBSITES OR
+    SERVICES. WE ARE NOT RESPONSIBLE FOR THEIR PRIVACY PRACTICES.
+  </p>
+
+  <h2>11. SMS Communications</h2>
+
+  <p>
+    IF YOU CHOOSE TO RECEIVE SMS MESSAGES FROM SLICKBACK, YOU AGREE
+    TO OUR MESSAGING TERMS AND MESSAGING PRIVACY POLICY.
+  </p>
+
+  <p>
+    <a href="https://terms.pscr.pt/legal/shop/ab72c2-2/terms_of_service" target="_blank">
+      MESSAGING TERMS OF SERVICE
+    </a>
+    <br><br>
+    <a href="https://terms.pscr.pt/legal/shop/ab72c2-2/privacy_policy" target="_blank">
+      MESSAGING PRIVACY POLICY
+    </a>
+  </p>
+
+  <h2>12. Contact Us</h2>
+
+  <p>
+    FOR QUESTIONS ABOUT THIS PRIVACY POLICY OR YOUR PERSONAL
+    INFORMATION, PLEASE CONTACT:
+  </p>
+
+  <p>
+    SUPPORT@SLICKBACK.SHOP
+  </p>
+
 </div>
 
 {% endblock %}
