@@ -241,6 +241,8 @@ def checkout_view(request):
         form = CheckoutForm(request.POST)
 
         if form.is_valid():
+            payment_method = request.POST.get('payment_method')
+
             order = Order.objects.create(
                 full_name=form.cleaned_data['full_name'],
                 email=form.cleaned_data['email'],
@@ -260,6 +262,18 @@ def checkout_view(request):
                     price=item['product'].price,
                 )
 
+            # Square (placeholder for now)
+            if payment_method == "square":
+                order.delete()
+
+                return render(request, 'store/checkout.html', {
+                    'form': form,
+                    'cart_items': cart_items,
+                    'total': total,
+                    'error': 'Square checkout is not connected yet.',
+                })
+
+            # Stripe checkout
             line_items = []
 
             for item in cart_items:
