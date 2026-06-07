@@ -458,3 +458,26 @@ def create_square_payment_link(request, order):
         raise Exception(response_data)
 
     return response_data["payment_link"]["url"]
+
+
+def square_success(request):
+    order_id = request.GET.get("order_id")
+
+    if order_id:
+        try:
+            order = Order.objects.get(id=order_id)
+            order.is_paid = True
+            order.save()
+
+            try:
+                send_order_confirmation_email(order, {})
+            except Exception as e:
+                print("Square email failed:", str(e))
+
+        except Order.DoesNotExist:
+            pass
+
+    request.session['cart'] = {}
+    request.session.modified = True
+
+    return render(request, 'store/checkout_success.html')
