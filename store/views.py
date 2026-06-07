@@ -407,11 +407,7 @@ def stripe_webhook(request):
 
 
 def create_square_payment_link(request, order):
-    if settings.SQUARE_ENVIRONMENT == "production":
-        base_url = "https://connect.squareup.com"
-    else:
-        base_url = "https://connect.squareupsandbox.com"
-
+    base_url = "https://connect.squareup.com"
     url = f"{base_url}/v2/online-checkout/payment-links"
 
     headers = {
@@ -420,15 +416,29 @@ def create_square_payment_link(request, order):
         "Square-Version": "2026-05-21",
     }
 
-    data = {
-        "idempotency_key": str(uuid.uuid4()),
-        "quick_pay": {
-            "name": f"SLK Order #{order.order_number}",
-            "price_money": {
-                "amount": int(order.total_price * 100),
+    line_items = []
+
+    for item in order.items.all():
+        name = item.product.name
+
+        if item.size:
+            name = f"{name} - Size {item.size}"
+
+        line_items.append({
+            "name": name,
+            "quantity": str(item.quantity),
+            "base_price_money": {
+                "amount": int(item.price * 100),
                 "currency": "GBP",
             },
+        })
+
+    data = {
+        "idempotency_key": str(uuid.uuid4()),
+        "order": {
             "location_id": settings.SQUARE_LOCATION_ID,
+            "reference_id": str(order.id),
+            "line_items": line_items,
         },
         "checkout_options": {
             "redirect_url": request.build_absolute_uri(
@@ -448,26 +458,3 @@ def create_square_payment_link(request, order):
         raise Exception(response_data)
 
     return response_data["payment_link"]["url"]
-
-
-def square_success(request):
-    order_id = request.GET.get("order_id")
-
-    if order_id:
-        try:
-            order = Order.objects.get(id=order_id)
-            order.is_paid = True
-            order.save()
-
-            try:
-                send_order_confirmation_email(order, {})
-            except Exception as e:
-                print("Square email failed:", str(e))
-
-        except Order.DoesNotExist:
-            pass
-
-    request.session['cart'] = {}
-    request.session.modified = True
-
-    return render(request, 'store/checkout_success.html')
