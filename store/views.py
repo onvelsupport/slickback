@@ -5,6 +5,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.template.loader import render_to_string
 
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from io import BytesIO
+
 from decimal import Decimal
 import stripe
 import uuid
@@ -526,22 +532,86 @@ def tracking_result_with_id(request, order_id):
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id)
 
-    invoice_text = f"""
-SLICKBACK INVOICE
+    buffer = BytesIO()
 
-Order Number: {order.order_number}
-Customer: {order.full_name}
-Email: {order.email}
-Date: {order.created_at.strftime('%d %B %Y')}
-Payment Status: {'Paid' if order.is_paid else 'Awaiting Payment'}
-Order Status: {order.status}
-Total: £{order.total_price}
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
 
-Thank you for shopping with SLICKBACK.
-"""
+    y = height - 40 * mm
 
-    response = HttpResponse(invoice_text, content_type="text/plain")
-    response["Content-Disposition"] = f'attachment; filename="{order.order_number}-invoice.txt"'
+    pdf.setFont("Helvetica-Bold", 22)
+    pdf.drawString(30 * mm, y, "SLICKBACK INVOICE")
+
+    y -= 20 * mm
+
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(30 * mm, y, f"Order Number: {order.order_number}")
+    y -= 8 * mm
+    pdf.drawString(30 * mm, y, f"Customer: {order.full_name}")
+    y -= 8 * mm
+    pdf.drawString(30 * mm, y, f"Email: {order.email}")
+    y -= 8 * mm
+    pdf.drawString(30 * mm, y, f"Date: {order.created_at.strftime('%d %B %Y')}")
+    y -= 8 * mm
+    pdf.drawString(30 * mm, y, f"Payment Status: {'Paid' if order.is_paid else 'Awaiting Payment'}")
+    y -= 8 * mm
+    pdf.drawString(30 * mm, y, f"Order Status: {order.status}")
+
+    y -= 18 * mm
+
+    pdf.setFont("Helvetica-Bold", 13)
+    pdf.drawString(30 * mm, y, "Items")
+
+    y -= 10 * mm
+
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(30 * mm, y, "Product")
+    pdf.drawString(115 * mm, y, "Qty")
+    pdf.drawString(135 * mm, y, "Price")
+    pdf.drawString(165 * mm, y, "Total")
+
+    y -= 6 * mm
+    pdf.line(30 * mm, y, 180 * mm, y)
+    y -= 8 * mm
+
+    pdf.setFont("Helvetica", 10)
+
+    for item in order.items.all():
+        product_name = item.product.name
+
+        if item.size:
+            product_name = f"{product_name} - Size {item.size}"
+
+        item_total = item.price * item.quantity
+
+        pdf.drawString(30 * mm, y, product_name[:40])
+        pdf.drawString(115 * mm, y, str(item.quantity))
+        pdf.drawString(135 * mm, y, f"£{item.price}")
+        pdf.drawString(165 * mm, y, f"£{item_total}")
+
+        y -= 8 * mm
+
+    y -= 8 * mm
+    pdf.line(30 * mm, y, 180 * mm, y)
+
+    y -= 12 * mm
+
+    pdf.setFont("Helvetica-Bold", 13)
+    pdf.drawString(130 * mm, y, "Total:")
+    pdf.drawString(165 * mm, y, f"£{order.total_price}")
+
+    y -= 25 * mm
+
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(30 * mm, y, "Thank you for shopping with SLICKBACK.")
+
+    pdf.showPage()
+    pdf.save()
+
+    buffer.seek(0)
+
+    response = HttpResponse(buffer, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{order.order_number}-invoice.pdf"'
 
     return response
 
