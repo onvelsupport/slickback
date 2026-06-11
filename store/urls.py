@@ -22,4 +22,7 @@ urlpatterns = [
 
 
     path('square/success/', views.square_success, name='square_success'),
+
+    path("track-order/", views.tracking, name="tracking"),
+    path("track-order/result/", views.tracking_result, name="tracking_result"),
 ]

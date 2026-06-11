@@ -481,3 +481,22 @@ def square_success(request):
     request.session.modified = True
 
     return render(request, 'store/checkout_success.html')
+
+
+def tracking(request):
+    return render(request, "store/tracking.html")
+
+
+def tracking_result(request):
+    order_number = request.GET.get("order", "").strip().upper()
+
+    order_id = order_number.replace("SLK", "").replace("SLICKBACK", "")
+
+    try:
+        order = Order.objects.get(id=int(order_id))
+    except:
+        return redirect("tracking")
+
+    return render(request, "store/tracking_result.html", {
+        "order": order
+    })
