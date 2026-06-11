@@ -12,7 +12,7 @@
 
 .status-page h1 {
   text-align: center;
-  font-family: 'Times New Roman', serif;
+  font-family: 'Courier New', monospace;
   font-size: 46px;
   margin-bottom: 45px;
   text-transform: uppercase;
@@ -89,8 +89,7 @@
   background: #fff;
 }
 
-@media (max-width: 600px) {
-
+@media(max-width: 600px) {
   .status-page h1 {
     font-size: 32px;
   }
@@ -112,13 +111,12 @@
   }
 
   .btn {
-    width: 100%;
     text-align: center;
+    width: 100%;
   }
 }
 </style>
 {% endblock %}
-
 
 {% block content %}
 <div class="status-page">
@@ -127,9 +125,7 @@
 
   {% if messages %}
     {% for message in messages %}
-      <div class="message">
-        {{ message }}
-      </div>
+      <div class="message">{{ message }}</div>
     {% endfor %}
   {% endif %}
 
@@ -137,36 +133,28 @@
 
     <div class="status-row">
       <div class="label">Order Number</div>
-      <div class="value">
-        {{ order.order_number }}
-      </div>
+      <div class="value">SLK{{ order.id }}</div>
     </div>
 
     <div class="status-row">
       <div class="label">Customer</div>
-      <div class="value">
-        {{ order.full_name }}
-      </div>
+      <div class="value">{{ order.full_name }}</div>
     </div>
 
     <div class="status-row">
       <div class="label">Email</div>
-      <div class="value">
-        {{ order.email }}
-      </div>
+      <div class="value">{{ order.email }}</div>
     </div>
 
     <div class="status-row">
       <div class="label">Date Ordered</div>
-      <div class="value">
-        {{ order.created_at|date:"d F Y" }}
-      </div>
+      <div class="value">{{ order.created_at|date:"d F Y" }}</div>
     </div>
 
     <div class="status-row">
       <div class="label">Payment Status</div>
       <div class="value">
-        {% if order.is_paid %}
+        {% if order.paid %}
           Paid
         {% else %}
           Awaiting Payment
@@ -176,26 +164,20 @@
 
     <div class="status-row">
       <div class="label">Order Status</div>
-      <div class="value">
-        {{ order.status }}
-      </div>
+      <div class="value">{{ order.status }}</div>
     </div>
 
     {% if order.tracking_number %}
     <div class="status-row">
       <div class="label">Tracking Number</div>
-      <div class="value">
-        {{ order.tracking_number }}
-      </div>
+      <div class="value">{{ order.tracking_number }}</div>
     </div>
     {% endif %}
 
     {% if order.courier %}
     <div class="status-row">
       <div class="label">Courier</div>
-      <div class="value">
-        {{ order.courier }}
-      </div>
+      <div class="value">{{ order.courier }}</div>
     </div>
     {% endif %}
 
@@ -210,17 +192,16 @@
       </a>
 
       {% if order.status != "Cancelled" and order.status != "Shipped" and order.status != "Delivered" %}
-      <form method="POST" action="{% url 'cancel_order' order.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">
-          Cancel Order
-        </button>
-      </form>
+        <form method="POST" action="{% url 'cancel_order' order.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            Cancel Order
+          </button>
+        </form>
       {% endif %}
 
     </div>
 
   </div>
-
 </div>
 {% endblock %}

@@ -530,80 +530,96 @@ def tracking_result_with_id(request, order_id):
 
 
 def download_invoice(request, order_id):
+    from io import BytesIO
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+
     order = get_object_or_404(Order, id=order_id)
 
     buffer = BytesIO()
-
     pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    y = height - 40 * mm
+    y = height - 35 * mm
 
+    # Title
     pdf.setFont("Helvetica-Bold", 22)
-    pdf.drawString(30 * mm, y, "SLICKBACK INVOICE")
-
-    y -= 20 * mm
-
-    pdf.setFont("Helvetica", 11)
-    pdf.drawString(30 * mm, y, f"Order Number: {order.order_number}")
-    y -= 8 * mm
-    pdf.drawString(30 * mm, y, f"Customer: {order.full_name}")
-    y -= 8 * mm
-    pdf.drawString(30 * mm, y, f"Email: {order.email}")
-    y -= 8 * mm
-    pdf.drawString(30 * mm, y, f"Date: {order.created_at.strftime('%d %B %Y')}")
-    y -= 8 * mm
-    pdf.drawString(30 * mm, y, f"Payment Status: {'Paid' if order.is_paid else 'Awaiting Payment'}")
-    y -= 8 * mm
-    pdf.drawString(30 * mm, y, f"Order Status: {order.status}")
+    pdf.drawString(25 * mm, y, "SLICKBACK INVOICE")
 
     y -= 18 * mm
 
-    pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(30 * mm, y, "Items")
+    # Invoice details
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(25 * mm, y, f"Invoice Number: {order.order_number.lower()}")
+    y -= 8 * mm
+    pdf.drawString(25 * mm, y, f"Order Date: {order.created_at.strftime('%d %B %Y')}")
+    y -= 8 * mm
+    pdf.drawString(25 * mm, y, f"Order Status: {'Paid' if order.is_paid else 'Awaiting Payment'}")
+
+    y -= 18 * mm
+
+    # Customer details
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(25 * mm, y, "Customer Details")
+
+    y -= 9 * mm
+
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(25 * mm, y, order.full_name)
+    y -= 7 * mm
+    pdf.drawString(25 * mm, y, order.email)
+    y -= 7 * mm
+    pdf.drawString(25 * mm, y, order.address)
+    y -= 7 * mm
+    pdf.drawString(25 * mm, y, f"{order.city}, {order.postcode}")
+    y -= 7 * mm
+    pdf.drawString(25 * mm, y, order.country)
+
+    y -= 18 * mm
+
+    # Order items
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(25 * mm, y, "Order Items")
 
     y -= 10 * mm
 
     pdf.setFont("Helvetica-Bold", 10)
-    pdf.drawString(30 * mm, y, "Product")
-    pdf.drawString(115 * mm, y, "Qty")
-    pdf.drawString(135 * mm, y, "Price")
-    pdf.drawString(165 * mm, y, "Total")
+    pdf.drawString(25 * mm, y, "Product")
+    pdf.drawString(105 * mm, y, "Size")
+    pdf.drawString(130 * mm, y, "Qty")
+    pdf.drawString(155 * mm, y, "Price")
 
-    y -= 6 * mm
-    pdf.line(30 * mm, y, 180 * mm, y)
+    y -= 5 * mm
+    pdf.line(25 * mm, y, 185 * mm, y)
     y -= 8 * mm
 
     pdf.setFont("Helvetica", 10)
 
     for item in order.items.all():
-        product_name = item.product.name
+        product_name = item.product.name[:42]
+        size = item.size if item.size else "-"
+        qty = str(item.quantity)
+        price = f"£{item.price}"
 
-        if item.size:
-            product_name = f"{product_name} - Size {item.size}"
-
-        item_total = item.price * item.quantity
-
-        pdf.drawString(30 * mm, y, product_name[:40])
-        pdf.drawString(115 * mm, y, str(item.quantity))
-        pdf.drawString(135 * mm, y, f"£{item.price}")
-        pdf.drawString(165 * mm, y, f"£{item_total}")
+        pdf.drawString(25 * mm, y, product_name)
+        pdf.drawString(105 * mm, y, size)
+        pdf.drawString(130 * mm, y, qty)
+        pdf.drawString(155 * mm, y, price)
 
         y -= 8 * mm
 
-    y -= 8 * mm
-    pdf.line(30 * mm, y, 180 * mm, y)
+    y -= 6 * mm
 
-    y -= 12 * mm
-
+    # Total
     pdf.setFont("Helvetica-Bold", 13)
-    pdf.drawString(130 * mm, y, "Total:")
-    pdf.drawString(165 * mm, y, f"£{order.total_price}")
+    pdf.drawString(25 * mm, y, f"Total: £{order.total_price}")
 
-    y -= 25 * mm
+    y -= 22 * mm
 
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(30 * mm, y, "Thank you for shopping with SLICKBACK.")
+    # Footer
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(25 * mm, y, "Thank you for shopping with SLICKBACK.")
 
     pdf.showPage()
     pdf.save()
@@ -611,7 +627,7 @@ def download_invoice(request, order_id):
     buffer.seek(0)
 
     response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="{order.order_number}-invoice.pdf"'
+    response["Content-Disposition"] = f'attachment; filename="invoice-{order.order_number.lower()}.pdf"'
 
     return response
 
