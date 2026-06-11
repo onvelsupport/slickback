@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.mail import send_mail
 from django.contrib import messages
 from django.template.loader import render_to_string
 
@@ -559,9 +558,16 @@ def cancel_order(request, order_id):
         order.status = "Cancelled"
         order.save()
 
-        send_mail(
-            subject=f"Your SLICKBACK order {order.order_number} has been cancelled",
-            message=f"""
+        try:
+            import resend
+
+            resend.api_key = settings.RESEND_API_KEY
+
+            resend.Emails.send({
+                "from": settings.DEFAULT_FROM_EMAIL,
+                "to": [order.email],
+                "subject": f"Your SLICKBACK order {order.order_number} has been cancelled",
+                "text": f"""
 Hello {order.full_name},
 
 Your order {order.order_number} has been cancelled successfully.
@@ -571,15 +577,19 @@ If you made a payment, your refund will be processed according to our refund pol
 Thank you,
 SLICKBACK
 """,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[order.email],
-            fail_silently=False,
-        )
+            })
 
-        messages.success(
-            request,
-            "Your order has been cancelled. A confirmation email has been sent."
-        )
+            messages.success(
+                request,
+                "Your order has been cancelled. A confirmation email has been sent."
+            )
+
+        except Exception as e:
+            print("Cancellation email failed:", str(e))
+            messages.warning(
+                request,
+                "Your order has been cancelled, but the confirmation email could not be sent."
+            )
 
         return redirect("tracking_result_with_id", order_id=order.id)
 
