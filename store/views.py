@@ -563,20 +563,28 @@ def cancel_order(request, order_id):
 
             resend.api_key = settings.RESEND_API_KEY
 
+            context = {
+                "order": order,
+                "order_items": order.items.all(),
+                "tracking_url": "https://slickback.shop/track-order/",
+            }
+
+            html_content = render_to_string(
+                "store/emails/order_cancelled.html",
+                context
+            )
+
+            text_content = render_to_string(
+                "store/emails/order_cancelled.txt",
+                context
+            )
+
             resend.Emails.send({
                 "from": settings.DEFAULT_FROM_EMAIL,
                 "to": [order.email],
                 "subject": f"Your SLICKBACK order {order.order_number} has been cancelled",
-                "text": f"""
-Hello {order.full_name},
-
-Your order {order.order_number} has been cancelled successfully.
-
-If you made a payment, your refund will be processed according to our refund policy.
-
-Thank you,
-SLICKBACK
-""",
+                "html": html_content,
+                "text": text_content,
             })
 
             messages.success(

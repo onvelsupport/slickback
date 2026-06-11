@@ -1,0 +1,30 @@
+YOUR ORDER HAS BEEN CANCELLED
+
+Order Number:
+{{ order.order_number }}
+
+This email confirms that your SLICKBACK order has been cancelled.
+
+{% if order.cancellation_reason %}
+Cancellation reason:
+{{ order.cancellation_reason }}
+
+{% endif %}
+Order total:
+£{{ order.total_price }}
+
+{% if order.is_paid %}
+A refund has been issued for your order.
+
+Depending on your bank or payment provider, the funds should be returned to your original payment method within 1–2 days.
+
+If you do not receive the refund within this timeframe, please contact your bank or payment provider.
+{% else %}
+No payment was taken for this order.
+{% endif %}
+
+If you have any questions regarding this cancellation, please contact us:
+
+https://slickback.shop/contact/
+
+Thank you for shopping with SLICKBACK.
