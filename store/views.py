@@ -20,8 +20,6 @@ from .models import Product, ProductSize, Order, OrderItem
 from .forms import CheckoutForm
 
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 def get_payment_method_label(session):
     try:
@@ -260,6 +258,12 @@ def checkout_view(request):
 
         if form.is_valid():
             payment_method = request.POST.get("payment_method")
+            stripe_account = request.POST.get("stripe_account", "a")
+
+            if stripe_account == "b":
+                selected_stripe_key = settings.STRIPE_SECRET_KEY_B
+            else:
+                selected_stripe_key = settings.STRIPE_SECRET_KEY_A
 
             order = Order.objects.create(
                 full_name=form.cleaned_data["full_name"],
@@ -316,6 +320,7 @@ def checkout_view(request):
 
             try:
                 checkout_session = stripe.checkout.Session.create(
+                    api_key=selected_stripe_key,
                     mode="payment",
                     line_items=line_items,
                     success_url=request.build_absolute_uri("/checkout/success/") + "?session_id={CHECKOUT_SESSION_ID}",

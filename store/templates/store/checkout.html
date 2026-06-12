@@ -176,13 +176,17 @@
 
     <h2>Select Payment Method</h2>
 
-    <button type="button" class="payment-btn stripe-btn" onclick="submitPayment('stripe')">
-      Pay with Stripe
-    </button>
+    <button type="button" class="payment-btn stripe-btn" onclick="submitPayment('stripe', 'a')">
+  Pay with Stripe A
+</button>
 
-    <button type="button" class="payment-btn square-btn" onclick="submitPayment('square')">
-      Pay with Square
-    </button>
+<button type="button" class="payment-btn stripe-btn" onclick="submitPayment('stripe', 'b')">
+  Pay with Stripe B
+</button>
+
+<button type="button" class="payment-btn square-btn" onclick="submitPayment('square')">
+  Pay with Square
+</button>
   </div>
 </div>
 {% endblock %}
@@ -197,20 +201,12 @@ function closePaymentModal() {
     document.getElementById("paymentModal").style.display = "none";
 }
 
-function submitPayment(method) {
+function submitPayment(method, stripeAccount = "") {
     const form = document.querySelector(".checkout-form");
 
-    let existingInput = document.querySelector("input[name='payment_method']");
-    if (existingInput) {
-        existingInput.remove();
-    }
+    document.getElementById("paymentMethod").value = method;
+    document.getElementById("stripeAccount").value = stripeAccount;
 
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "payment_method";
-    input.value = method;
-
-    form.appendChild(input);
     form.submit();
 }
 
