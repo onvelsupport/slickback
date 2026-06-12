@@ -201,12 +201,20 @@ function closePaymentModal() {
     document.getElementById("paymentModal").style.display = "none";
 }
 
-function submitPayment(method, stripeAccount = "") {
+function submitPayment(method) {
     const form = document.querySelector(".checkout-form");
 
-    document.getElementById("paymentMethod").value = method;
-    document.getElementById("stripeAccount").value = stripeAccount;
+    let existingInput = document.querySelector("input[name='payment_method']");
+    if (existingInput) {
+        existingInput.remove();
+    }
 
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payment_method";
+    input.value = method;
+
+    form.appendChild(input);
     form.submit();
 }
 
