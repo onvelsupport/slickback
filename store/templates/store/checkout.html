@@ -106,6 +106,11 @@
     cursor: pointer;
   }
 
+  .paypal-btn {
+    background: #ffc439;
+    color: #111;
+}
+
 .payment-btn {
     width: 100%;
     padding: 18px;
@@ -187,6 +192,11 @@
 <button type="button" class="payment-btn square-btn" onclick="submitPayment('square')">
   Pay with Square
 </button>
+
+<button type="button" class="payment-btn paypal-btn" onclick="submitPayment('paypal')">
+  Pay with PayPal
+</button>
+
   </div>
 </div>
 {% endblock %}
@@ -201,20 +211,27 @@ function closePaymentModal() {
     document.getElementById("paymentModal").style.display = "none";
 }
 
-function submitPayment(method) {
+function submitPayment(method, stripeAccount = "") {
     const form = document.querySelector(".checkout-form");
 
-    let existingInput = document.querySelector("input[name='payment_method']");
-    if (existingInput) {
-        existingInput.remove();
+    document.querySelectorAll("input[name='payment_method'], input[name='stripe_account']").forEach(input => {
+        input.remove();
+    });
+
+    const paymentInput = document.createElement("input");
+    paymentInput.type = "hidden";
+    paymentInput.name = "payment_method";
+    paymentInput.value = method;
+    form.appendChild(paymentInput);
+
+    if (stripeAccount) {
+        const stripeInput = document.createElement("input");
+        stripeInput.type = "hidden";
+        stripeInput.name = "stripe_account";
+        stripeInput.value = stripeAccount;
+        form.appendChild(stripeInput);
     }
 
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "payment_method";
-    input.value = method;
-
-    form.appendChild(input);
     form.submit();
 }
 

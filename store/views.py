@@ -284,6 +284,9 @@ def checkout_view(request):
                     price=item["product"].price,
                 )
 
+            if payment_method == "paypal":
+                return redirect("paypal_checkout", order_id=order.id)
+
             if payment_method == "square":
                 try:
                     square_url = create_square_payment_link(request, order)
@@ -362,7 +365,6 @@ def checkout_success(request):
     request.session.modified = True
 
     return render(request, "store/checkout_success.html")
-
 
 @csrf_exempt
 def stripe_webhook(request):
@@ -693,3 +695,118 @@ def cancel_order(request, order_id):
         return redirect("tracking_result_with_id", order_id=order.id)
 
     return redirect("tracking")
+
+
+
+def get_paypal_base_url():
+    if settings.PAYPAL_MODE == "live":
+        return "https://api-m.paypal.com"
+    return "https://api-m.sandbox.paypal.com"
+
+
+def get_paypal_access_token():
+    response = requests.post(
+        f"{get_paypal_base_url()}/v1/oauth2/token",
+        auth=(settings.PAYPAL_CLIENT_ID, settings.PAYPAL_CLIENT_SECRET),
+        headers={"Accept": "application/json"},
+        data={"grant_type": "client_credentials"},
+    )
+
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+
+def paypal_checkout(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.is_paid:
+        return redirect("checkout_success")
+
+    access_token = get_paypal_access_token()
+
+    data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "reference_id": str(order.id),
+                "amount": {
+                    "currency_code": "GBP",
+                    "value": str(order.total_price),
+                },
+            }
+        ],
+        "application_context": {
+            "brand_name": "SLICKBACK",
+            "user_action": "PAY_NOW",
+            "return_url": request.build_absolute_uri(
+                f"/paypal/success/?order_id={order.id}"
+            ),
+            "cancel_url": request.build_absolute_uri(
+                f"/paypal/cancel/?order_id={order.id}"
+            ),
+        },
+    }
+
+    response = requests.post(
+        f"{get_paypal_base_url()}/v2/checkout/orders",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        },
+        json=data,
+    )
+
+    response.raise_for_status()
+    paypal_order = response.json()
+
+    order.paypal_order_id = paypal_order["id"]
+    order.save()
+
+    for link in paypal_order["links"]:
+        if link["rel"] == "approve":
+            return redirect(link["href"])
+
+    return redirect("checkout")
+
+
+def paypal_success(request):
+    order_id = request.GET.get("order_id")
+    token = request.GET.get("token")
+
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.is_paid:
+        return redirect("checkout_success")
+
+    access_token = get_paypal_access_token()
+
+    response = requests.post(
+        f"{get_paypal_base_url()}/v2/checkout/orders/{token}/capture",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        },
+    )
+
+    response.raise_for_status()
+    capture_data = response.json()
+
+    capture_id = capture_data["purchase_units"][0]["payments"]["captures"][0]["id"]
+
+    order.is_paid = True
+    order.paypal_capture_id = capture_id
+    order.save()
+
+    try:
+        send_order_confirmation_email(order, {})
+    except Exception as e:
+        print("PayPal email failed:", str(e))
+
+    request.session["cart"] = {}
+    request.session.modified = True
+
+    return render(request, "store/checkout_success.html")
+
+
+def paypal_cancel(request):
+    return redirect("checkout")

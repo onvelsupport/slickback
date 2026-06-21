@@ -28,4 +28,9 @@ urlpatterns = [
     path("track-order/result/<int:order_id>/", views.tracking_result_with_id, name="tracking_result_with_id"),
     path("invoice/<int:order_id>/download/", views.download_invoice, name="download_invoice"),
     path("order/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
+
+
+    path("checkout/paypal/<int:order_id>/", views.paypal_checkout, name="paypal_checkout"),
+    path("paypal/success/", views.paypal_success, name="paypal_success"),
+    path("paypal/cancel/", views.paypal_cancel, name="paypal_cancel"),
 ]

@@ -61,6 +61,11 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
     stripe_session_id = models.CharField(max_length=255, blank=True, null=True)
 
+    paypal_order_id = models.CharField(max_length=255, blank=True, null=True)
+    paypal_capture_id = models.CharField(max_length=255, blank=True, null=True)
+
+    
+
     status = models.CharField(
         max_length=50,
         choices=ORDER_STATUS_CHOICES,
