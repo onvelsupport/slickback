@@ -133,7 +133,7 @@
 
     <div class="status-row">
       <div class="label">Order Number</div>
-      <div class="value">SLK{{ order.id }}</div>
+      <div class="value">{{ order.order_number }}</div>
     </div>
 
     <div class="status-row">
@@ -154,7 +154,7 @@
     <div class="status-row">
       <div class="label">Payment Status</div>
       <div class="value">
-        {% if order.paid %}
+        {% if order.is_paid %}
           Paid
         {% else %}
           Awaiting Payment
